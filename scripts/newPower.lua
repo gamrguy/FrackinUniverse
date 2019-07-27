@@ -60,7 +60,7 @@ function power.update(dt)
 	
 	-- Generate energy passively
 	if storage.energyGen > 0 then
-		power.recieveEnergy(storage.energyGen * dt)
+		power.receiveEnergy(storage.energyGen * dt)
 	end
 	
 	-- Consume energy passively
