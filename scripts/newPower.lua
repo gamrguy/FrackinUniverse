@@ -120,6 +120,7 @@ end
 -- Adds power to the device's storage.
 -- Returns the excess energy, if any.
 function power.receiveEnergy(energy)
+	sb.logInfo("Received "..energy.." energy")
 	local newEnergy = storage.storedEnergy + energy
 	storage.storedEnergy = math.min(newEnergy, power.maxEnergy)
 	return newEnergy - storage.storedEnergy
@@ -132,7 +133,6 @@ function power.transferEnergy(energy, device)
 	local failed = power.removeEnergy(energy)
 	local leftover = callEntity(device, "power.receiveEnergy", energy - failed) or energy
 	if leftover > 0 then power.receiveEnergy(leftover) end
-	sb.logInfo("Transferring power to "..device.." with "..leftover.." leftovers")
 	return leftover
 end
 
@@ -143,7 +143,6 @@ function power.onNodeConnectionChange(arg)
 			for e,_ in pairs(object.getOutputNodeIds(power.outputNode)) do
 				sb.logInfo(e)
 				if callEntity(e, "isConsumer") then
-					sb.logInfo("hey, we have a hit")
 					table.insert(power.connectedConsumers, e)
 				end
 			end

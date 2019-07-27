@@ -24,7 +24,7 @@
 	],
 
 	"scripts" : [ "newConduit.lua" ],
-	"scriptDelta" : 0,
+	"scriptDelta" : 5,
 
 	"animation" : "/objects/power/fu_conduit/fu_conduit.animation",
 	"animationParts" : { "switch" : "fu_conduit.png" },

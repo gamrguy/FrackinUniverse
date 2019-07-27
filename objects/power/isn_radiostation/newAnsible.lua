@@ -1,4 +1,4 @@
-require "/scripts/newPower.lua"
+require '/scripts/newPower.lua'
 
 function power.postInit()
 	object.setInteractive(true)
@@ -23,14 +23,12 @@ function onInteraction(args)
 	end
 end
 
-function postUpdate(dt)
+function power.postUpdate(dt)
 	if storage.notEnoughPower then 
 		animator.setAnimationState("anim", "off")
 		object.setLightColor({0, 0, 0})
-		storage.haspower = false
 	else
 		animator.setAnimationState("anim", "on")
 		object.setLightColor({30, 50, 90})
-		storage.haspower = true
 	end
 end
