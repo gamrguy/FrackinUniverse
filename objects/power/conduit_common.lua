@@ -1,7 +1,15 @@
-require '/scripts/newPower.lua'
+require '/objects/power/power.lua'
 
 function power.postInit()
 	onInputNodeChange()
+end
+
+function power.preUpdate()
+	
+end
+
+function power.postUpdate()
+
 end
 
 function setObjectOn()
@@ -22,18 +30,4 @@ end
 
 function onInputNodeChange(args)
 	setObjectOn()
-	--[[for i=0,object.inputNodeCount()-1 do
-		for value in pairs(object.getInputNodeIds(i)) do
-			if world.callScriptedEntity(value,'isPower') then
-				world.callScriptedEntity(value,'power.onNodeConnectionChange')
-			end
-		end
-	end
-	for i=0,object.outputNodeCount()-1 do
-		for value in pairs(object.getOutputNodeIds(i)) do
-			if world.callScriptedEntity(value,'isPower') then
-				world.callScriptedEntity(value,'power.onNodeConnectionChange')
-			end
-		end
-	end]]
 end

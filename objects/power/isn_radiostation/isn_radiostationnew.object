@@ -2,7 +2,7 @@
 	"objectName" : "isn_radiostationnew",
 	"printable" : false,
 	"rarity" : "Rare",
-	"description" : "Picks up on faster-than-light communications. Allows purchase of goods. Requires 50W of power.",
+	"description" : "Picks up on faster-than-light communications. Allows purchase of goods. Requires 40W of power.",
 	"shortdescription" : "^cyan;Ansible Network^white;",
 	"race" : "generic",
 	"category" : "wire",
@@ -18,7 +18,7 @@
 		}
 	],
 	
-	"scripts" : [ "newAnsible.lua" ],
+	"scripts" : [ "ansible.lua" ],
 	"scriptDelta" : 5,
 
 	"animation" : "isn_radiostationnew.animation",
@@ -32,7 +32,7 @@
 	
 	"powerInputNode" : 0,
 	"consumesEnergy" : true,
-	"maxEnergy" : 400,        // Ansible can store up to 10 seconds of unpowered activity
+	"maxEnergy" : 500,        // Ansible can store up to 10 seconds of unpowered activity
 	"energyConsume" : 40,
 	
 	"isn_baseFrequencies" : {

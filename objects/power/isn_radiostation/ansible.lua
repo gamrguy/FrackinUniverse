@@ -1,4 +1,4 @@
-require '/scripts/newPower.lua'
+require '/objects/power/power.lua'
 
 function power.postInit()
 	object.setInteractive(true)

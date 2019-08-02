@@ -3,7 +3,7 @@
     "printable" : false,
     "colonyTags" : [ "science" ],
     "rarity" : "rare",
-    "description" : "An hydroponic powered growing tray. Requires 3 seeds and water. ^cyan;Requires ^orange;2W ^cyan;power^reset; to increase production. Scan for info.",
+    "description" : "A hydroponic powered growing tray. Requires 3 seeds and water. ^cyan;Requires ^orange;20W ^cyan;power^reset; to increase production. Scan for info.",
     "shortdescription" : "^cyan;Hydro Tray^reset;",
     "race" : "generic",
     "category" : "wire",
@@ -21,13 +21,13 @@
     ],
 
     "slotCount" : 11,
-    "uiConfig" : "/objects/crafting/fu_growingtray/fu_growingtray.config",
+    "uiConfig" : "/objects/power/fu_growingtray/fu_growingtray.config",
     
     "frameCooldown" : 67,
     "autoCloseCooldown" : 3600,
 
-    "scripts" : [ "/scripts/power.lua","/objects/isn_unifiedgrowingtray.lua" ],
-    "scriptDelta" : 60,
+    "scripts" : [ "/objects/power/growingtray_common.lua" ],
+    "scriptDelta" : 5,
 
     "animation" : "isn_hydroponicstray.animation",
     "animationParts" : {
@@ -39,8 +39,11 @@
 
     "inputNodes" : [ [1, 1] ],
     "outputNodes" : [ [1, 0] ],
-    "powertype" : "input",
-    "isn_requiredPower" : 2,
+	
+	"powerInputNode" : 0,
+    "consumesEnergy" : true,
+	"maxEnergy" : 200,
+    "energyConsume" : 20,
 
     //Amount of growth per second for this table.
     "baseGrowthPerSecond" : 6,

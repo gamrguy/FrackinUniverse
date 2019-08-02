@@ -23,7 +23,7 @@
 		}
 	],
 
-	"scripts" : [ "newConduit.lua" ],
+	"scripts" : [ "/objects/power/conduit_common.lua" ],
 	"scriptDelta" : 5,
 
 	"animation" : "/objects/power/fu_conduit/fu_conduit.animation",

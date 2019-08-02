@@ -1,32 +1,27 @@
-require '/scripts/power.lua'
+require '/objects/power/power.lua'
 
-function init()
-  power.init()
-  object.setInteractive(true)
-  power.setPower(config.getParameter('isn_batteryVoltage'))
-  power.setMaxEnergy(config.getParameter('isn_batteryCapacity'))
-  if config.getParameter('isnStoredPower') then
-    power.setStoredEnergy(config.getParameter('isnStoredPower'))
-    object.setConfigParameter('isnStoredPower', nil)
-  end
+function power.postInit()
+	object.setInteractive(true)
 end
 
 function onInteraction()
-  print(power.getStoredEnergy())
+	print(math.floor(storage.storedEnergy+0.5))
 end
 
-function update(dt)
-  object.setConfigParameter('description', isn_makeBatteryDescription())
-  power.update(dt)
-  local powerlevel = math.floor(power.getStoredEnergy() / power.getMaxEnergy() * 10)
-  animator.setAnimationState("meter", power.getStoredEnergy() == 0 and 'd' or tostring(math.floor(powerlevel)))
+function power.preUpdate(dt)
+	object.setConfigParameter('description', isn_makeBatteryDescription())
+end
+
+function power.postUpdate(dt)
+	local powerlevel = math.floor(storage.storedEnergy / power.maxEnergy * 10)
+	animator.setAnimationState("meter", power.getStoredEnergy() == 0 and 'd' or tostring(math.floor(powerlevel)))
 end
 
 function die()
-	if power.getStoredEnergy() > 0 then
-		local charge = power.getStoredEnergy() / power.getMaxEnergy() * 100
+	if storage.storedEnergy > 0 then
+		local charge = storage.storedEnergy / power.maxEnergy * 100
 		local iConf = root.itemConfig(object.name())
-		local newObject = { isnStoredPower = power.getStoredEnergy() }
+		local newObject = { storedEnergy = storage.storedEnergy }
 
 		if iConf and iConf.config then
 			-- set the border colour according to the charge level (red → yellow → green)
@@ -58,7 +53,7 @@ function isn_makeBatteryDescription(desc, charge)
 		desc = root.itemConfig(object.name())
 		desc = desc and desc.config and desc.config.description or ''
 	end
-	charge = charge or power.getStoredEnergy() / power.getMaxEnergy() * 100
+	charge = charge or storage.storedEnergy / power.maxEnergy * 100
 
 	-- bat flattery
 	if charge == 0 then return desc end

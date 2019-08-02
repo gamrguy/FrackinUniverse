@@ -1,6 +1,6 @@
 require "/scripts/fu_storageutils.lua"
 require "/scripts/kheAA/transferUtil.lua"
-require "/scripts/power.lua"
+require "/objects/power/power.lua"
 
 timer = 0
 
@@ -10,7 +10,7 @@ fertslot = 2
 
 inputSlots = {seedslot, waterslot, fertslot}
 
-function init()
+function power.preInit()
 	defaults = {
 		growthRate = config.getParameter("baseGrowthPerSecond", 4),  -- Multiplier on vanilla plant growth speed
 		seedUse = config.getParameter("defaultSeedUse", 3),          -- Amount of seeds consumed per plant (for perennials, starting cost)
@@ -27,18 +27,17 @@ function init()
 	if not storage.fert then storage.fert = {} end
 	if not storage.water then storage.water = {} end
 
-	self.requiredPower = config.getParameter("isn_requiredPower", nil)
+	storage.energyConsume = config.getParameter("energyConsume", 0)
 	self.unpoweredGrowthRate = config.getParameter("unpoweredGrowthRate", 0.434782609)   -- Multiplier on base growth rate when unpowered
 	self.liquidInputs = config.getParameter("waterInputs")
 	self.fertInputs = config.getParameter("fertInputs")
+end
 
-	if self.requiredPower then
-		power.init()
-	end
-
+function power.postInit()
 	transferUtil.init()
 	object.setInteractive(true)
-
+	
+	self.requiredPower = storage.energyConsume > 0
 	storage.growth = storage.growth or 0 				--Plant growth completed
 	storage.fluid = storage.fluid or 0					--Stored fluid
 	storage.currentStage = storage.currentStage or 1	--Current plant stage
@@ -48,7 +47,7 @@ function init()
 end
 
 --Updates the state of the object.
-function update(dt)
+function power.preUpdate(dt)
 	-- Updates container status (for ITD management)
 	if timer >= 1 then
 		timer = 0
@@ -60,8 +59,10 @@ function update(dt)
 	checkTrayInputs()
 
 	storage.activeConsumption = false
+end
 
-	if self.requiredPower then power.update(dt) end
+function power.postUpdate(dt)
+	if storage.notEnoughPower then animator.setAnimationState("powlight", "off") end
 
 	--Try to start growing if data indicates we aren't.
 	if not storage.currentseed then
@@ -73,7 +74,7 @@ function update(dt)
 	end
 
 	--growthmod should be nil if we aren't a power consumer
-	local growthmod = self.requiredPower and (consumePower(dt) and 1 or self.unpoweredGrowthRate)
+	local growthmod = self.requiredPower and (consumedPower() and 1 or self.unpoweredGrowthRate)
 	growPlant(growthmod, dt)
 
 	storage.activeConsumption = true
@@ -143,16 +144,15 @@ function die()
 	end
 end
 
--- Consumes power and updates animation
-function consumePower(dt)
+-- Checks if we've consumed power and update animations
+function consumedPower()
 	if self.requiredPower then
-		if power.consume(self.requiredPower * dt) then
-			animator.setAnimationState("powlight", "on")
-			return true
-		else
+		if storage.notEnoughPower then
 			animator.setAnimationState("powlight", "off")
-			return false
+		else
+			animator.setAnimationState("powlight", "on")
 		end
+		return not storage.notEnoughPower
 	end
 	return false
 end

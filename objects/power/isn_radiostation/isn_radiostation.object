@@ -25,7 +25,7 @@
 		}
 	],
 	
-	"scripts" : [ "/objects/power/isn_radiostation/newAnsible.lua" ],
+	"scripts" : [ "/objects/power/isn_radiostation/ansible.lua" ],
 	"scriptDelta" : 60,
 
 	"animation" : "isn_radiostation.animation",
