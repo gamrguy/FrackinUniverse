@@ -55,25 +55,28 @@ function power.preUpdate(dt)
 					storage.output = output
 					storage.input = input
 					storage.timer = self.initialCraftDelay
-					storage.activeConsumption = true
 					break
 				end
 			end
 		end
 		if storage.input then
-			storage.energyConsume = config.getParameter("energyConsume")
+			-- Take an item and begin consuming power
+			world.containerConsume(entity.id(), { name = storage.input.name, count = 1, data={}})
+			power.setConsumeRate(config.getParameter("energyConsume"))
+			wakeUp()
+		else
+			-- No input; enter idle mode
+			becomeIdle()
 		end
 	end
 end
 
 function power.postUpdate(dt)
-	if storage.timer > 0 and (not powered or (power.getTotalEnergy() >= config.getParameter("isn_requiredPower")*(1-(cent or 0))-1 and power.consume(config.getParameter("isn_requiredPower")*dt))) then
-		cent = (cent or 0) + dt
-		if cent >= 1 then cent = cent-1 end
-		animator.setAnimationState("centrifuge", "working")
-		storage.timer = math.max(storage.timer - dt,0)
-	elseif storage.timer == 0 then
-		if world.containerConsume(entity.id(), { name = storage.input.name, count = 1, data={}}) then
+	if power.hasConsumedEnergy() then
+		wakeUp()
+		if storage.timer > 0 then
+			storage.timer = math.max(storage.timer - dt,0)
+		elseif storage.timer == 0 then
 			stashHoney(storage.input.name)
 			storage.input = nil
 			storage.activeConsumption = false
@@ -99,16 +102,9 @@ function power.postUpdate(dt)
 				if throw then world.spawnItem(throw, entity.position()) end -- hope that the player or an NPC which collects items is around
 				rnd = rnd - chance
 			end
-		else
-			animator.setAnimationState("centrifuge", "idle")
-			storage.activeConsumption = false
-			storage.input = nil
-			storage.output = nil
-			storage.timer = nil
 		end
 	else
-		animator.setAnimationState("centrifuge", "idle")
-		storage.activeConsumption = false
+		becomeIdle()
 	end
 
 	if storage.combsProcessed and storage.combsProcessed.count > 0 then
@@ -118,9 +114,21 @@ function power.postUpdate(dt)
 			drawHoney() -- effectively clear the stash, stopping the jarrer from getting it
 		end
 	end
-	
-	if powered then
-		power.update(dt)
+end
+
+function becomeIdle()
+	if not storage.idle then
+		storage.idle = true
+		animator.setAnimationState("centrifuge", "idle")
+		storage.activeConsumption = false
+	end
+end
+
+function wakeUp()
+	if storage.idle then
+		storage.idle = false
+		animator.setAnimationState("centrifuge", "working")
+		storage.activeConsumption = true
 	end
 end
 

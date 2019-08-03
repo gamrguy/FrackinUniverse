@@ -101,6 +101,22 @@ function power.update(dt)
 	if power.produces and power.outputNode then object.setOutputNodeLevel(power.outputNode, sentPower) end
 end
 
+function power.hasConsumedEnergy()
+	return not storage.notEnoughPower
+end
+
+function power.hasNotConsumedEnergy()
+	return storage.notEnoughPower
+end
+
+function power.getConsumeRate()
+	return storage.energyConsume
+end
+
+function power.setConsumeRate(energy)
+	storage.energyConsume = energy
+end
+
 function power.getStorageLeft()
 	return power.maxEnergy - storage.storedEnergy
 end
