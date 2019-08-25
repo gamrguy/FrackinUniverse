@@ -1,0 +1,11 @@
+{
+	"frameGrid" : {
+		"size" : [33, 19],
+		"dimensions" : [3, 3],
+		"names" : [
+			[ "off", "stable.1", "stable.2" ],
+			[ "nil", "unstable.1", "unstable.2" ],
+			[ "nada", "deficit.1", "deficit.2" ]
+		]
+	}
+}

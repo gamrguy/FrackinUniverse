@@ -1,27 +1,29 @@
 require '/objects/power/power.lua'
 
-function power.postInit()
+--[[function power.postInit()
 	object.setInteractive(true)
-end
+end]]
 
-function onInteraction()
+--[[function onInteraction()
 	print(math.floor(storage.storedEnergy+0.5))
-end
+end]]
 
 function power.preUpdate(dt)
 	object.setConfigParameter('description', isn_makeBatteryDescription())
 end
 
-function power.postUpdate(dt)
-	local powerlevel = math.floor(storage.storedEnergy / power.maxEnergy * 10)
-	animator.setAnimationState("meter", power.getStoredEnergy() == 0 and 'd' or tostring(math.floor(powerlevel)))
+function power.postUpdate(dt) -- Power meter animations are now handled natively
+	--local powerlevel = math.floor(storage.storedEnergy / power.maxEnergy * 10)
+	--animator.setAnimationState("meter", power.getStoredEnergy() == 0 and 'd' or tostring(math.floor(powerlevel)))
 end
 
 function die()
-	if storage.storedEnergy > 0 then
-		local charge = storage.storedEnergy / power.maxEnergy * 100
+	if power.getStoredEnergy() > 0 then
+		local charge = power.getStoredEnergy() / power.getMaxEnergy() * 100
 		local iConf = root.itemConfig(object.name())
-		local newObject = { storedEnergy = storage.storedEnergy }
+		local newObject = { power = config.getParameter('power') }
+		newObject.power.storedEnergy = power.getStoredEnergy()
+		newObject.power.meterPos = powerVars.meterPos
 
 		if iConf and iConf.config then
 			-- set the border colour according to the charge level (red → yellow → green)
@@ -53,7 +55,7 @@ function isn_makeBatteryDescription(desc, charge)
 		desc = root.itemConfig(object.name())
 		desc = desc and desc.config and desc.config.description or ''
 	end
-	charge = charge or storage.storedEnergy / power.maxEnergy * 100
+	charge = charge or power.getStoredEnergy() / power.getMaxEnergy() * 100
 
 	-- bat flattery
 	if charge == 0 then return desc end

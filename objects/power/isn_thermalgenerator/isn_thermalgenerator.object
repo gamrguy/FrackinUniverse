@@ -47,10 +47,13 @@
 	"inputNodes" : [ [2, 2],[0, 2] ],
 	"outputNodes" : [ [2, 1] ],
 	
-	"powerOutputNode" : 0,
-	"maxEnergy" : 3000,
-	"energyPushCap" : 150,
-	"producesEnergy" : true,
+	"power" : {
+		"logicNodes" : [ 1 ],
+		"outputNodes" : [ 0 ],
+		"maxEnergy" : 3000,
+		"maxPushRate" : 150,
+		"produces" : true
+	},
 	
 	"acceptablefuel" : {
 		"liquidoil" : 10,
@@ -65,6 +68,7 @@
 		"biofuelcannistermax" : 20,
 		"schrodingerscat" : 90
 	},
+	
 	"heat" : {
 		"maxPowerGen" : 150,
 		"maxLight" : [166, 166, 166],
@@ -75,12 +79,4 @@
 			{ "heat" : 0.9, "animator" : { "screen" : "fast" } }
 		]
 	}
-	/*"heat" : [
-		{"minheat" : 90,"animator" : {"screen" : "fast"},"sound" : true,"power" : 12,"light" : [166,166,166]},
-		{"minheat" : 70,"animator" : {"screen" : "med","fans" : "fast"},"sound" : true,"power" : 9,"light" : [100,100,100]},
-		{"minheat" : 50,"animator" : {"screen" : "med","fans" : "fast"},"sound" : true,"power" : 7,"light" : [100,100,100]},
-		{"minheat" : 30,"animator" : {"screen" : "slow","fans" : "slow"},"sound" : false,"power" : 5,"light" : [50,50,50]},
-		{"minheat" : 10,"animator" : {"screen" : "slow","fans" : "slow"},"sound" : false,"power" : 3,"light" : [50,50,50]},
-		{"minheat" : 0,"animator" : {"screen" : "off","fans" : "off"},"sound" : false,"power" : 0,"light" : [0,0,0]}
-	]*/
 }

@@ -31,7 +31,7 @@
           "centrifuge" : {
             "idle" : {
               "properties" : {
-                "image" : "<partImage>:<color>.1"
+                "image" : "<partImage>:<color>.idle"
               }
             },
 
@@ -54,7 +54,7 @@
           "centrifuge" : {
             "idle" : {
               "properties" : {
-                "image" : "<partImage>:<color>.1"
+                "image" : "<partImage>:<color>.idle"
               }
             },
 

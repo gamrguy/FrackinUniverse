@@ -35,8 +35,8 @@
 
 	"powerInputNode" : 0,
 	"powerOutputNode" : 0,
-	"maxEnergy" : 100,
-	"energyPushCap" : 100,
+	"maxEnergy" : 9999,
+	"energyPushCap" : 9999,
 	"producesEnergy" : true,
 	"consumesEnergy" : true
 }

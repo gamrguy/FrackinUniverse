@@ -1,72 +1,102 @@
 {
-  "animatedParts" : {
-    "stateTypes" : {
-      "centrifuge" : {
-        "default" : "idle",
-        "states" : {
-          "idle" : {
-            "frames" : 1
-          },
-          "working" : {
-            "frames" : 5,
-            "cycle" : 0.3,
-            "mode" : "loop",
-            "properties" : {
-              "persistentSound" : "/sfx/honeyjarrer/centrifuge.ogg"
-            }
-          }
-        }
-      }  
-    },
+	"animatedParts" : {
+		"stateTypes" : {
+			"centrifuge" : {
+				"default" : "idle",
+				"states" : {
+					"idle" : {
+						"frames" : 1
+					},
+					"working" : {
+						"frames" : 5,
+						"cycle" : 0.3,
+						"mode" : "loop",
+						"properties" : {
+							"persistentSound" : "/sfx/honeyjarrer/centrifuge.ogg"
+						}
+					}
+				}
+			},
+			"monitor" : {
+				"default" : "off",
+				"states" : {
+					"off" : {
+						"frames" : 1
+					},
+					"stable" : {
+						"frames" : 2,
+						"cycle" : 0.3,
+						"mode" : "loop"
+					},
+					"unstable" : {
+						"frames" : 2,
+						"cycle" : 0.3,
+						"mode" : "loop"
+					},
+					"deficit" : {
+						"frames" : 2,
+						"cycle" : 0.3,
+						"mode" : "loop"
+					}
+				}
+			}
+		},
 
-    "parts" : {
-      "centrifuge" : {
-        "properties" : {
-          "centered" : false,
-          "zLevel" : 1,
-          "fullbright" : true
-        },
+		"parts" : {
+			"centrifugefullbright" : {
+				"properties" : {
+					"centered" : false,
+					"zLevel" : 1
+				},
 
-        "partStates" : {
-          "centrifuge" : {
-            "idle" : {
-              "properties" : {
-                "image" : "<partImage>:<color>.1"
-              }
-            },
+				"partStates" : {
+					"centrifuge" : {
+						"idle" : {
+							"properties" : {
+								"image" : "<partImage>:<color>.1"
+							}
+						},
 
-            "working" : {
-              "properties" : {
-                "image" : "<partImage>:<color>.<frame>"
-              }
-            }
-          }
-        }
-      },
-      "centrifugefullbright" : {
-        "properties" : {
-          "centered" : false,
-          "zLevel" : 2
-        },
-
-        "partStates" : {
-          "centrifuge" : {
-            "idle" : {
-              "properties" : {
-                "image" : "<partImage>:<color>.1"
-              }
-            },
-
-            "working" : {
-              "properties" : {
-                "image" : "<partImage>:<color>.<frame>"
-              }
-            }
-          }
-        }
-      }      
-      
-      
-    }
-  }
+						"working" : {
+							"properties" : {
+								"image" : "<partImage>:<color>.<frame>"
+							}
+						}
+					}
+				}
+			},
+			"monitor" : {
+				"properties" : {
+					"centered" : false,
+					"zLevel" : 2,
+					"fullbright" : true
+				},
+				
+				"partStates" : {
+					"monitor" : {
+						"off" : {
+							"properties" : {
+								"image" : "<partImage>:off"
+							}
+						},
+						"stable" : {
+							"properties" : {
+								"image" : "<partImage>:stable.<frame>"
+							}
+						},
+						"unstable" : {
+							"properties" : {
+								"image" : "<partImage>:unstable.<frame>"
+							}
+						},
+						"deficit" : {
+							"properties" : {
+								"image" : "<partImage>:deficit.<frame>"
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }

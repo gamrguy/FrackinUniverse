@@ -1,9 +1,44 @@
 --[[
 Generic script for pretty much anything utilizing the power system.
 ---  By Lucca  ---
+
+Object settings:
+
+	"power" : {
+		"logicNodes" : [],     // Logical input nodes, for turning the device on and off
+		"inputNodes" : [],     // Power input nodes
+		"outputNodes" : [],    // Power output nodes
+		"produces" : true,     // Whether this device produces (sends) energy
+		"consumes" : true,     // Whether this device receives energy from producers
+		"maxEnergy" : 1000,    // Amount of U this device can store internally
+		"storedEnergy" : 1000, // Energy stored in this device. Typically used as a battery parameter for persistent storage.
+		"maxPushRate" : 100,   // Maximum amount of energy that can be pushed, per second, from this device (if a producer)
+		"priority" : 0,        // Priority; devices with higher priority are powered first
+		
+		"animStates" : {       // Animation states for various power-related status.
+			"active" : {},     // Device is active (for machine running animations)
+			"inactive" : {},   // Device is inactive (for machine running animations)
+			
+			"off" : {},        // The device is inactive. (for informative lights)
+			"deficit" : {},    // The device is active, but was unable to consume power this update or the last. (for informative lights)
+			"unstable" : {},   // The device consumed power this update, but is losing power in storage. (for informative lights)
+			"stable" : {},     // The device is active and has a stable power flow. (for informative lights)
+			
+			"idle" : {},       // Idle state. (apply to both running animations and informative lights)
+			
+			"powerMeter" : {   // A subset of animations for displaying the current power level. Optional.
+				{ "level" : 30, "anims" : {} },
+				{ "level" : 50, "anims" : {} }
+				...
+			}
+		}
+	}
 ]]
+require '/scripts/util.lua'
+
 
 power = {}
+powerVars = {}
 
 -- Hooks for scripting purposes. Override these to integrate seamlessly with the system
 function power.preInit() end
@@ -12,22 +47,37 @@ function power.preUpdate() end
 function power.postUpdate() end
 function power.preNodeConnectionChange() end
 function power.postNodeConnectionChange() end
+function power.onBecomeIdle() end
+function power.onWakeUp() end
 
 function init()
 	if not power.didSetup then
-		power.inputNode = config.getParameter("powerInputNode", nil)                           -- Power input node (currently unused; any node will work)
-		power.outputNode = config.getParameter("powerOutputNode", nil)                         -- Power output node
-		power.connectedConsumers = { battery = {}, normal = {} }                               -- Consumers connected to this device
-		power.maxEnergy = config.getParameter("maxEnergy", 0)                                  -- Maximum energy storable by this device
-		power.produces = config.getParameter("producesEnergy", false)                          -- Whether this device sends energy to other devices
-		power.consumes = config.getParameter("consumesEnergy", false)                          -- Whether this device receives energy from other devices
-		power.energyPushCap = config.getParameter("energyPushCap", nil)                        -- Cap on the energy pushed from this device, per second
-		--power.priority = config.getParameter("powerPriority", 2)                               -- Priority of this device. Higher-priority devices are powered first.
-		storage.energyGen = storage.energyGen or 0                                             -- Amount of energy this device is producing per second
-		storage.energyConsume = storage.energyConsume or 0                                     -- Amount of energy this device consumes per second
-		storage.storedEnergy = storage.storedEnergy or config.getParameter("storedEnergy", 0)  -- Energy currently stored by this device
-		--storage.isFull = storage.isFull or storage.storedEnergy >= power.maxEnergy             -- Whether this device is full
+		local conf = config.getParameter('power')
+		if not storage.powerVars then storage.powerVars = {} end
+		local stored = storage.powerVars
+		powerVars = {
+			logicNodes = {},
+			inputNodes = {},
+			outputNodes = {},
+			produces = false,
+			consumes = false,
+			maxEnergy = 0,
+			storedEnergy = 0,
+			maxPushRate = 0,
+			genRate = 0,
+			consumeRate = 0,
+			priority = 0,
+			idle = false,
+			animStates = {}
+		}
+		powerVars = util.mergeTable(powerVars, util.mergeTable(conf, stored))
+		powerVars.connected = { all = {}, producers = {}, consumers = {} }
+		powerVars.priorityIndex = {}
+		
 		power.didSetup = true
+		if powerVars.meterPos then
+			power.applyAnims(powerVars.animStates.powerMeter[powerVars.meterPos].anims)
+		end
 	end
 	if power.preInit() ~= false then
 		power.init()
@@ -49,6 +99,10 @@ function onNodeConnectionChange()
 	power.postNodeConnectionChange()
 end
 
+function onInputNodeChange()
+	power.onInputNodeChange()
+end
+
 function power.init()
 	power.onNodeConnectionChange()
 end
@@ -61,101 +115,145 @@ function power.update(dt)
 	end
 	
 	-- Generate energy passively
-	if storage.energyGen > 0 then
-		power.receiveEnergy(storage.energyGen * dt)
+	if power.getGenRate() > 0 then
+		power.receiveEnergy(power.getGenRate() * dt)
 	end
 	
 	-- Consume energy passively
-	if storage.energyConsume > 0 then
-		local powerToConsume = storage.energyConsume * dt
-		if powerToConsume > storage.storedEnergy then
-			storage.notEnoughPower = true
+	if power.getConsumeRate() > 0 then
+		local powerToConsume = power.getConsumeRate() * dt
+		local consumedPower = true
+		if powerToConsume > power.getStoredEnergy() then
+			consumedPower = false
 		else
 			power.removeEnergy(powerToConsume)
-			storage.notEnoughPower = false
+			power.applyAnims(powerVars.animStates.active)
 		end
+		power.setVar('consumedPower', consumedPower)
+		if consumedPower and powerVars.consumedPowerPrev then
+			if powerVars.storedEnergyPrev then
+				if powerVars.storedEnergyPrev > power.getStoredEnergy() then
+					power.applyAnims(powerVars.animStates.unstable)
+				elseif powerVars.storedEnergyPrev <= power.getStoredEnergy() then
+					power.applyAnims(powerVars.animStates.stable)
+				end
+			end
+		else
+			power.applyAnims(powerVars.animStates.deficit)
+		end
+		power.setVar('storedEnergyPrev', power.getStoredEnergy())
+		power.setVar('consumedPowerPrev', consumedPower)
+		if not consumedPower then
+			power.applyAnims(powerVars.animStates.inactive)
+		end
+	elseif powerVars.consumes then
+		power.setVar('consumedPower', false)
+		power.applyAnims(powerVars.animStates.inactive)
+		power.applyAnims(powerVars.animStates.off)
 	end
 	
 	-- If this is a producer, attempt to send power to connected consumers
 	-- Batteries have lowered priority and only get sent to if there's leftover power
 	local sentPower = false
-	if power.produces and storage.storedEnergy > 0 then
-		local powerPacket = math.min(storage.storedEnergy, power.energyPushCap * dt)
-		local powerPerDevice = powerPacket / #power.connectedConsumers.normal
-		for _,device in pairs(power.connectedConsumers.normal) do
-			local leftovers = power.transferEnergy(powerPerDevice, device)
-			if leftovers < powerPerDevice then sentPower = true end
-			powerPacket = powerPacket + leftovers
-			powerPerDevice = powerPacket / #power.connectedConsumers.normal
-		end
-		if powerPacket > 0 then
-			powerPerDevice = powerPacket / #power.connectedConsumers.battery
-			for _,device in pairs(power.connectedConsumers.battery) do
+	if powerVars.produces and power.getStoredEnergy() > 0 then
+		local consumers = powerVars.connected.consumers
+		local powerPacket = math.min(power.getStoredEnergy(), powerVars.maxPushRate * dt)
+		for _,p in ipairs(powerVars.priorityIndex) do
+			local devices = consumers[p].devices
+			local powerPerDevice = powerPacket / #devices
+			for _,device in pairs(devices) do
 				local leftovers = power.transferEnergy(powerPerDevice, device)
 				if leftovers < powerPerDevice then sentPower = true end
 				powerPacket = powerPacket + leftovers
-				powerPerDevice = powerPacket / #power.connectedConsumers.battery
+				powerPerDevice = powerPacket / #devices
 			end
+			if powerPacket <= 0 then break end
 		end
 	end
-	if power.produces and power.outputNode then object.setOutputNodeLevel(power.outputNode, sentPower) end
+	for _,node in pairs(powerVars.produces and powerVars.outputNodes or {}) do
+		object.setOutputNodeLevel(node, sentPower)
+	end
+	
+	power.setPowerMeter(power.getStoredEnergy() / power.getMaxEnergy())
 end
 
 function power.hasConsumedEnergy()
-	return not storage.notEnoughPower
+	return powerVars.consumedPower
 end
 
 function power.hasNotConsumedEnergy()
-	return storage.notEnoughPower
+	return not powerVars.consumedPower
+end
+
+function power.getGenRate()
+	return powerVars.genRate
+end
+
+function power.setGenRate(rate)
+	power.setVar('genRate', rate)
 end
 
 function power.getConsumeRate()
-	return storage.energyConsume
+	return powerVars.consumeRate
 end
 
-function power.setConsumeRate(energy)
-	storage.energyConsume = energy
+function power.setConsumeRate(rate)
+	power.setVar('consumeRate', rate)
 end
 
 function power.getStorageLeft()
-	return power.maxEnergy - storage.storedEnergy
+	return power.getMaxEnergy() - power.getStoredEnergy()
 end
 
 function power.setMaxEnergy(energy)
-	power.maxEnergy = energy
-	storage.storedEnergy = math.min(storage.storedEnergy, energy)
+	power.setVar('maxEnergy', energy)
+	power.setStoredEnergy(math.min(power.getStoredEnergy(), energy))
 end
 
 function power.getMaxEnergy()
-	return power.maxEnergy
+	return powerVars.maxEnergy
 end
 
 function power.setStoredEnergy(energy)
-	storage.storedEnergy = math.min(power.maxEnergy, energy)
+	power.setVar('storedEnergy', math.min(power.getMaxEnergy(), energy))
 end
 
 function power.getStoredEnergy()
-	return storage.storedEnergy
+	return powerVars.storedEnergy
+end
+
+function power.getPriority()
+	return powerVars.priority
+end
+
+function power.setPriority(p)
+	power.setVar('priority', p)
+	-- TODO: Broadcast priority change to connected producers
+end
+
+function power.setVar(var, val)
+	powerVars[var] = val
+	storage.powerVars[var] = val
 end
 
 -- Subtracts power from the device's storage.
 -- Returns the amount of energy that couldn't be removed.
 function power.removeEnergy(energy)
-	local newEnergy = storage.storedEnergy - energy
-	storage.storedEnergy = math.max(newEnergy, 0)
+	local newEnergy = power.getStoredEnergy() - energy
+	power.setStoredEnergy(math.max(newEnergy, 0))
 	--if storage.isFull and storage.storedEnergy < power.maxEnergy then
 		-- We're full - broadcast to stop powering this device
 	--end
-	return storage.storedEnergy - newEnergy
+	return power.getStoredEnergy() - newEnergy
 end
 
 -- Adds power to the device's storage.
 -- Returns the excess energy, if any.
 function power.receiveEnergy(energy)
-	sb.logInfo("Received "..energy.." energy")
-	local newEnergy = storage.storedEnergy + energy
-	storage.storedEnergy = math.min(newEnergy, power.maxEnergy)
-	return newEnergy - storage.storedEnergy
+	--sb.logInfo("Received "..energy.." energy")
+	local newEnergy = power.getStoredEnergy() + energy
+	power.setStoredEnergy(math.min(newEnergy, power.getMaxEnergy()))
+	return newEnergy - power.getStoredEnergy()
 end
 
 -- Attempts to transfer energy from this device to the other device.
@@ -163,34 +261,141 @@ end
 -- Returns the amount of leftover energy.
 function power.transferEnergy(energy, device)
 	local failed = power.removeEnergy(energy)
-	local leftover = callEntity(device, "power.receiveEnergy", energy - failed) or energy
+	local leftover = util.callEntity(device, 'power.receiveEnergy', energy - failed) or energy
 	if leftover > 0 then power.receiveEnergy(leftover) end
 	return leftover
 end
 
-function power.onNodeConnectionChange(arg)
-	if power.produces and power.outputNode then
-		power.connectedConsumers = { battery = {}, normal = {} }
-		if object.isOutputNodeConnected(power.outputNode) then
-			for e,_ in pairs(object.getOutputNodeIds(power.outputNode)) do
-				sb.logInfo(e)
-				if callEntity(e, "isConsumer") then
-					if callEntity(e, "config.getParameter", "isBattery") then
-						table.insert(power.connectedConsumers.battery, e)
-					else
-						table.insert(power.connectedConsumers.normal, e)
-					end
-				end
-			end
+function power.onInputNodeChange()
+	power.logicIdle()
+end
+
+function power.onNodeConnectionChange()
+	power.logicIdle()
+	
+	local inputWires = {}
+	local outputWires = {}
+	powerVars.connected = { all = {}, producers = {}, consumers = {} }
+	powerVars.priorityIndex = {}
+	for _,node in pairs(powerVars.produces and powerVars.outputNodes or {}) do
+		if object.isOutputNodeConnected(node) then
+			outputWires = util.mergeTable(outputWires, object.getOutputNodeIds(node))
+		end
+	end
+	for _,node in pairs(powerVars.consumes and powerVars.inputNodes or {}) do
+		if object.isInputNodeConnected(node) then
+			inputWires = util.mergeTable(inputWires, object.getInputNodeIds(node))
+		end
+	end
+	for e,node in pairs(outputWires) do
+		local powerData = util.callEntity(e, 'power.getPowerData')
+		if powerData and contains(powerData.inputNodes, node) then
+			powerVars.connected.all[e] = powerData
+			power.connectConsumer(e)
+		end
+	end
+	for e,node in pairs(inputWires) do
+		local powerData = util.callEntity(e, 'power.getPowerData')
+		if powerData and contains(powerData.outputNodes, node) then
+			powerVars.connected.all[e] = powerData
+			power.connectProducer(e)
 		end
 	end
 end
 
-function isConsumer()
-	return power.consumes
+function power.getPowerData()
+	return powerVars
 end
 
-function callEntity(id,...)
+function power.logicIdle()
+	local hasLogic = false
+	local becomeIdle = true
+	local isEmpty = true
+	for _,node in pairs(powerVars.logicNodes) do
+		hasLogic = true
+		if object.isInputNodeConnected(node) then
+			if object.getInputNodeLevel(node) then
+				becomeIdle = false
+			end
+			isEmpty = false
+		end
+	end
+	if not powerVars.idle and hasLogic and becomeIdle and not isEmpty then
+		power.becomeIdle()
+	elseif powerVars.idle then
+		power.wakeUp()
+	end
+end
+
+function power.becomeIdle()
+	power.setVar('idle', true)
+	script.setUpdateDelta(0) -- We're idle now. Enter a deep sleep, never to return...?
+	power.applyAnims(powerVars.animStates.idle)
+	power.onBecomeIdle()
+end
+
+function power.wakeUp()
+	power.setVar('idle', false)
+	script.setUpdateDelta(config.getParameter('scriptDelta', 5))
+	power.onWakeUp()
+end
+
+function power.connectProducer(device)
+	local powerData = powerVars.connected.all[device]
+	if powerData.produces then
+		table.insert(powerVars.connected.producers, device)
+	end
+end
+
+function power.connectConsumer(device)
+	local powerData = powerVars.connected.all[device]
+	if powerData.consumes then
+		local consumers = powerVars.connected.consumers
+		if consumers[powerData.priority] then
+			table.insert(consumers[powerData.priority].devices, device)
+		else
+			consumers[powerData.priority] = { devices = {} }
+			table.insert(consumers[powerData.priority].devices, device)
+			table.insert(powerVars.priorityIndex, powerData.priority)
+			consumers[powerData.priority].index = #powerVars.priorityIndex
+			table.sort(powerVars.priorityIndex, function(a,b) 
+				if a>b then -- no change, no swapping
+					return true
+				else
+					-- swap mapped indexes when performing a swap in the sort
+					consumers[a].index,consumers[b].index = consumers[b].index,consumers[a].index
+					return false
+				end
+			end)
+		end
+	end
+end
+
+function power.setPowerMeter(energyLevel)
+	local meterStates = powerVars.animStates.powerMeter
+	if meterStates then
+		local meterPos = powerVars.meterPos or 1
+		local nextMeter = meterStates[meterPos+1]
+		local prevMeter = meterStates[meterPos-1]
+		if nextMeter and energyLevel >= nextMeter.level then
+			power.applyAnims(nextMeter.anims)
+			power.setVar('meterPos', meterPos+1)
+		elseif prevMeter and energyLevel <= prevMeter.level then
+			power.applyAnims(prevMeter.anims)
+			power.setVar('meterPos', meterPos-1)
+		end
+	end
+end
+
+function power.applyAnims(anims)
+	for k,v in pairs(anims or {}) do
+		if animator.animationState(k) ~= v then
+			animator.setAnimationState(k, v)
+		end
+	end
+end
+
+function util.callEntity(id,...)
 	if world.entityExists(id) then
 		return world.callScriptedEntity(id,...)
 	end

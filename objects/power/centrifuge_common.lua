@@ -1,11 +1,10 @@
 require "/scripts/fu_storageutils.lua"
 require "/scripts/kheAA/transferUtil.lua"
 require '/objects/power/power.lua'
-local deltaTime=0
-
 
 function power.preInit()
 	transferUtil.init()
+	transferUtil.loadSelfContainer()
 
 	self.centrifugeType = config.getParameter("centrifugeType") or error("centrifugeType is undefined in .object file") -- die horribly
 
@@ -35,14 +34,6 @@ function deciding(item)
 end
 
 function power.preUpdate(dt)
-	-- Transfer network updatey thing
-	if deltaTime>1 then
-		transferUtil.loadSelfContainer()
-		deltaTime=0
-	else
-		deltaTime=deltaTime+dt
-	end
-	
 	-- Grab the current centrifuge/sifter recipe
 	if not storage.input then
 		local input
@@ -62,24 +53,18 @@ function power.preUpdate(dt)
 		if storage.input then
 			-- Take an item and begin consuming power
 			world.containerConsume(entity.id(), { name = storage.input.name, count = 1, data={}})
-			power.setConsumeRate(config.getParameter("energyConsume"))
-			wakeUp()
-		else
-			-- No input; enter idle mode
-			becomeIdle()
+			power.setConsumeRate(powerVars.centrifugePower)
 		end
 	end
 end
 
 function power.postUpdate(dt)
-	if power.hasConsumedEnergy() then
-		wakeUp()
+	if power.hasConsumedEnergy() and storage.input then
 		if storage.timer > 0 then
 			storage.timer = math.max(storage.timer - dt,0)
 		elseif storage.timer == 0 then
 			stashHoney(storage.input.name)
 			storage.input = nil
-			storage.activeConsumption = false
 			local rnd = math.random()
 			for item, chancePair in pairs(storage.output) do
 				local chanceBase,chanceDivisor = table.unpack(chancePair)
@@ -102,9 +87,8 @@ function power.postUpdate(dt)
 				if throw then world.spawnItem(throw, entity.position()) end -- hope that the player or an NPC which collects items is around
 				rnd = rnd - chance
 			end
+			power.setConsumeRate(0)
 		end
-	else
-		becomeIdle()
 	end
 
 	if storage.combsProcessed and storage.combsProcessed.count > 0 then
@@ -113,22 +97,6 @@ function power.postUpdate(dt)
 		if storage.combsProcessed.stale == 0 then
 			drawHoney() -- effectively clear the stash, stopping the jarrer from getting it
 		end
-	end
-end
-
-function becomeIdle()
-	if not storage.idle then
-		storage.idle = true
-		animator.setAnimationState("centrifuge", "idle")
-		storage.activeConsumption = false
-	end
-end
-
-function wakeUp()
-	if storage.idle then
-		storage.idle = false
-		animator.setAnimationState("centrifuge", "working")
-		storage.activeConsumption = true
 	end
 end
 

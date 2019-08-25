@@ -16,7 +16,7 @@
 	"inventoryIcon" : "centrifugeicon.png",
 	"orientations" : [
 		{
-			"dualImage" : "centrifuge.png:<color>.<frame>",
+			"dualImage" : "centrifugefullbright.png:<color>.<frame>",
 
 			"imagePosition" : [0, 0],
 			"frames" : 1,
@@ -28,7 +28,7 @@
 	],
 	"animation" : "centrifuge.animation",
 	"animationParts" : {
-		"centrifuge" : "centrifuge.png",
+		"monitor" : "monitor.png",
 		"centrifugefullbright" : "centrifugefullbright.png"
 	},
 
@@ -57,8 +57,19 @@
 	"outputNodes" : [ [0, 0] ],
 
 	"centrifugeType" : "liquid",
-	"powerInputNode" : 0,
-	"consumesEnergy" : true,
-	"energyMax" : 2000,
-	"energyConsume" : 200
+	"power" : {
+		"inputNodes" : [0],
+		"consumes" : true,
+		"maxEnergy" : 2000,
+		"centrifugePower" : 200,
+		"animStates" : {
+			"active" : { "centrifuge" : "working" },
+			"inactive" : { "centrifuge" : "idle" },
+			"off" : { "monitor" : "off" },
+			"deficit" : { "monitor" : "deficit" },
+			"unstable" : { "monitor" : "unstable" },
+			"stable" : { "monitor" : "stable" },
+			"idle" : { "centrifuge" : "idle", "monitor" : "off" }
+		}
+	}
 }

@@ -15,6 +15,12 @@ function power.postInit()
 	transferUtil.init()
 end
 
+function power.onBecomeIdle()
+	storage.heat = 0
+	storage.heatState = 1
+	applyState(self.heatData.heatStates[1])
+end
+
 function power.preUpdate(dt)
 	transferUtil.loadSelfContainer()
 	
@@ -22,7 +28,7 @@ function power.preUpdate(dt)
 		storage.fueltime = math.max(storage.fueltime - dt,0)
 	end
 	
-	if storage.fueltime == 0 and (not object.isInputNodeConnected(1) or object.getInputNodeLevel(1)) then
+	if storage.fueltime == 0 then
 		item = world.containerItemAt(entity.id(),0)
 		if item and self.fuelList[item.name] then
 			world.containerConsumeAt(entity.id(),0,1)
@@ -38,7 +44,7 @@ function updateHeat(dt)
 	else
 		storage.heat = math.max(storage.heat - dt * 0.05, 0)
 	end
-	storage.energyGen = self.heatData.maxPowerGen * storage.heat
+	power.setGenRate(self.heatData.maxPowerGen * storage.heat)
 	
 	local newLight = {}
 	for i = 1,3 do

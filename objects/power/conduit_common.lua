@@ -28,6 +28,12 @@ function power.preNodeConnectionChange()
 	setObjectOn()
 end
 
+function power.postNodeConnectionChange()
+	-- Automatically set priority to the highest connected.
+	-- If no consumers connected, and therefore no prioritized machines, don't bother sending power to here (unless it's the only thing left)
+	power.setPriority(power.priorityIndex[1] or -999)
+end
+
 function onInputNodeChange(args)
 	setObjectOn()
 end

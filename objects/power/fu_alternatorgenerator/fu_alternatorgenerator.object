@@ -41,10 +41,12 @@
 	"inputNodes" : [ [2, 2],[0, 2] ],
 	"outputNodes" : [ [2, 1] ],
 	
-	"powerOutputNode" : 0,
-	"maxEnergy" : 8000,
-	"energyPushCap" : 40,
-	"producesEnergy" : true,
+	"power" : {
+		"outputNodes" : [0],
+		"maxEnergy" : 8000,
+		"maxPushRate" : 40,
+		"produces" : true
+	}
 	
 	"acceptablefuel" : {
 		"coalore" : 7,
