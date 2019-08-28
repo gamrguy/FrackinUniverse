@@ -19,6 +19,7 @@ function power.onBecomeIdle()
 	storage.heat = 0
 	storage.heatState = 1
 	applyState(self.heatData.heatStates[1])
+	object.setLightColor({0,0,0})
 end
 
 function power.preUpdate(dt)
@@ -50,6 +51,7 @@ function updateHeat(dt)
 	for i = 1,3 do
 		newLight[i] = math.min(self.heatData.maxLight[i], util.lerp(storage.heat, 0, self.heatData.maxLight[i]))
 	end
+	object.setLightColor(newLight)
 	
 	local nextState = self.heatData.heatStates[storage.heatState + 1]
 	local prevState = self.heatData.heatStates[storage.heatState - 1]

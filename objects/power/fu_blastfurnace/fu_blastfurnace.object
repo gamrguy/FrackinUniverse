@@ -11,7 +11,7 @@
 	"printable" : false,
 	"learnBlueprintsOnPickup" : [ "isn_arcsmelter" ],
 	"scripts" : [ "/objects/power/blastfurnace_common.lua" ],
-	"scriptDelta" : 10,
+	"scriptDelta" : 5,
 	"openSounds" : [ "/sfx/objects/campfire_use.ogg" ],
 	"slotCount" : 15,
 	"uiConfig" : "/objects/power/fu_blastfurnace/fu_blastfurnace.config",
@@ -41,61 +41,13 @@
 
 	"power" : {
 		"inputNodes" : [0],
-		"maxEnergy" : 7000,
-		"consumeRate" : 500,
+		"maxEnergy" : 5000,
 		"consumes" : true,
-		"furnaceTimer" : 1,
-		"furnaceWasteChance" : 0.25,
+		"smeltingPower" : 500,
+		"smeltingTime" : 1,
 		"animStates" : {
 			"active" : { "furnaceState" : "active" },
 			"inactive" : { "furnaceState" : "idle" }
 		}
-	},
-
-	"inputsToOutputs" : {
-		"morphiteore" : "aliencompound",
-		"cinnabarore" : "ff_mercury",
-		"densiniumore" : "densiniumbar",
-		"graphene" : "fu_carbon",
-		"irradiumore" : "irradiumbar",
-		"zerchesiumore" : "zerchesiumbar",
-		"penumbriteore" : "penumbriteshard",
-		"prisiliteore" : "prisilitestar",
-		"protociteore" : "protocitebar",
-		"quietusore" : "quietusbar",
-		"solarishard" : "solaricrystal",
-		"triangliumore" : "triangliumpyramid",
-		"moonstoneore" : "moonstonebar",
-		"durasteelore" : "durasteelbar",
-		"tungstenore" : "tungstenbar",
-		"thoriumore" : "thoriumrod",
-		"neptuniumore" : "neptuniumrod",
-		"effigiumore" : "effigiumbar",
-		"pyreiteore" : "pyreitebar",
-		"isogenore" : "isogenbar",
-		"xithriciteore" : "xithricitecrystal"
-	},
-
-	"bonusOutputs" : {
-		"thoriumore" : { "lead" : 3, "thoriumore" : 4, "unstableparticles" : 4 },
-		"neptuniumore" : { "neptuniumore" : 8, "plutoniumore" : 1, "unstableparticles" : 4 },
-		"morphiteore" : { "liquidbioooze" : 18, "fu_nitrogen" :15	},
-		"cinnabarore" : { "fu_nitrogen" : 18, "fu_carbon" : 15 },
-		"densiniumore" : { "liquidironfu" : 18, "fu_carbon" : 15 },
-		"ff_plastic" : { "fu_carbon" : 18, "agaranichor" : 15 },
-		"graphene" : { "fu_carbon" : 18, "liquidwater" : 15 },
-		"irradiumore" : { "liquidirradium" : 18, "fu_carbon" : 15 },
-		"zerchesiumore" : { "liquidironfu" : 18, "fu_carbon" : 15 },
-		"penumbriteore" : { "liquiddarkwater" : 18, "phasematter" : 15 },
-		"prisiliteore" : { "liquidgravrain" : 18, "fu_oxygen" : 15 },
-		"protociteore" : { "vialproto" : 18, "fu_carbon" : 15 },
-		"quietusore" : { "shadowgasliquid" : 18, "ff_silicon" : 15 },
-		"solarishard" : { "liquidnitrogenitem" : 18, "fu_carbon" : 15 },
-		"triangliumore" : { "ff_mercury" : 18, "ff_silicon" : 15 },
-		"moonstoneore" : { "helium3gasliquid" : 18, "fu_carbon" : 15 },
-		"effigiumore" : { "deuterium" : 22, "iodine" : 35 },
-		"isogenore" : { "icecrystal" : 22, "cryonicextract" : 25 },
-		"pyreiteore" : { "scorchedcore" : 22, "volatilepowder" : 25 },
-		"xithriciteore" : { "solaricrystal" : 22, "staticcell" : 25 }
 	}
 }

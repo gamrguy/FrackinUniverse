@@ -51,7 +51,7 @@
 		"common": 0.35
 	},
 
-	"inputSlot": 3,
+	"inputSlot": 2,
 
 	"inputNodes" : [ [0, 1] ],
 	"outputNodes" : [ [0, 0] ],

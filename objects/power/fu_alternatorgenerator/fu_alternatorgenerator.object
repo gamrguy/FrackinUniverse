@@ -46,7 +46,7 @@
 		"maxEnergy" : 8000,
 		"maxPushRate" : 40,
 		"produces" : true
-	}
+	},
 	
 	"acceptablefuel" : {
 		"coalore" : 7,

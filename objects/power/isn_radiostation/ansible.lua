@@ -5,11 +5,10 @@ function power.postInit()
 	storage.frequencies = storage.frequencies or config.getParameter("isn_baseFrequencies")
 	storage.currentconfig = storage.currentconfig or storage.frequencies["isn_miningVendor"]
 	storage.currentkey = storage.currentkey or "isn_miningVendor"
-	storage.energyConsume = config.getParameter("energyConsume")
 end
 
 function onInteraction(args)
-	if storage.notEnoughPower then
+	if power.hasNotConsumedEnergy() then
 		animator.burstParticleEmitter("noPower")
 		animator.playSound("error")
 	else
@@ -24,11 +23,9 @@ function onInteraction(args)
 end
 
 function power.postUpdate(dt)
-	if storage.notEnoughPower then 
-		animator.setAnimationState("anim", "off")
-		object.setLightColor({0, 0, 0})
-	else
-		animator.setAnimationState("anim", "on")
+	if power.hasConsumedEnergy() then
 		object.setLightColor({30, 50, 90})
+	else
+		object.setLightColor({0, 0, 0})
 	end
 end

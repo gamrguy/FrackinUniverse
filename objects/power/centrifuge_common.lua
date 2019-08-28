@@ -10,6 +10,10 @@ function power.preInit()
 
 	self.itemChances = config.getParameter("itemChances")
 	self.inputSlot = config.getParameter("inputSlot",1)
+	self.inputSlots = {}
+	for i=0,self.inputSlot do
+		self.inputSlots[i] = true
+	end
 
 	self.initialCraftDelay = config.getParameter("craftDelay",0)
 	storage.craftDelay = storage.craftDelay or self.initialCraftDelay
@@ -33,12 +37,44 @@ function deciding(item)
 	return nil
 end
 
-function power.preUpdate(dt)
+function power.postUpdate(dt)
+	if storage.input and power.hasConsumedEnergy() then
+		if storage.timer > 0 then
+			storage.timer = math.max(storage.timer - dt,0)
+		elseif storage.timer == 0 then
+			stashHoney(storage.input.name)
+			storage.input = nil
+			local rnd = math.random()
+			for item, chancePair in pairs(storage.output) do
+				local chanceBase,chanceDivisor = table.unpack(chancePair)
+				local chance = self.itemChances[chanceBase] / chanceDivisor
+				local done=false
+				local throw=nil
+				if rnd <= chance then
+					fu_newStoreItems({name=item, count=1, data={}}, self.inputSlots, true)
+				end
+				rnd = rnd - chance
+			end
+			power.setConsumeRate(0)
+		end
+	end
+
+	if storage.combsProcessed and storage.combsProcessed.count > 0 then
+		-- discard the stash if unclaimed by a jarrer within a reasonable time (twice the craft delay)
+		storage.combsProcessed.stale = (storage.combsProcessed.stale or (self.initialCraftDelay * 2)) - dt
+		if storage.combsProcessed.stale == 0 then
+			drawHoney() -- effectively clear the stash, stopping the jarrer from getting it
+		end
+	end
+
 	-- Grab the current centrifuge/sifter recipe
+	-- Start processing last - this is better for the flow of operations
+	-- Having this here means you can both output and start in the same update,
+	-- and processing doesn't start with one "free" update when it begins
 	if not storage.input then
 		local input
 		local found
-		for i=0,self.inputSlot-1 do
+		for i=0,self.inputSlot do
 			input = world.containerItemAt(entity.id(),i)
 			if input then
 				local output = deciding(input)
@@ -54,48 +90,6 @@ function power.preUpdate(dt)
 			-- Take an item and begin consuming power
 			world.containerConsume(entity.id(), { name = storage.input.name, count = 1, data={}})
 			power.setConsumeRate(powerVars.centrifugePower)
-		end
-	end
-end
-
-function power.postUpdate(dt)
-	if power.hasConsumedEnergy() and storage.input then
-		if storage.timer > 0 then
-			storage.timer = math.max(storage.timer - dt,0)
-		elseif storage.timer == 0 then
-			stashHoney(storage.input.name)
-			storage.input = nil
-			local rnd = math.random()
-			for item, chancePair in pairs(storage.output) do
-				local chanceBase,chanceDivisor = table.unpack(chancePair)
-				local chance = self.itemChances[chanceBase] / chanceDivisor
-				local done=false
-				local throw=nil
-				if rnd <= chance then
-					local contSize=world.containerSize(entity.id())
-					for i=self.inputSlot,contSize-1 do
-						throw = world.containerPutItemsAt(entity.id(), { name = item, count = 1, data={}},i)
-						if not throw then
-							done=true
-							break
-						end
-					end
-					if done then
-						break
-					end
-				end
-				if throw then world.spawnItem(throw, entity.position()) end -- hope that the player or an NPC which collects items is around
-				rnd = rnd - chance
-			end
-			power.setConsumeRate(0)
-		end
-	end
-
-	if storage.combsProcessed and storage.combsProcessed.count > 0 then
-		-- discard the stash if unclaimed by a jarrer within a reasonable time (twice the craft delay)
-		storage.combsProcessed.stale = (storage.combsProcessed.stale or (self.initialCraftDelay * 2)) - dt
-		if storage.combsProcessed.stale == 0 then
-			drawHoney() -- effectively clear the stash, stopping the jarrer from getting it
 		end
 	end
 end

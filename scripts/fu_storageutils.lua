@@ -115,3 +115,36 @@ function fu_sendOrStoreItems(node, itemDescriptor, avoidSlots, spawnLeftovers)
 	end
 	return remain
 end
+
+-- New item store/drop function. Shorter and faster and just better really.
+-- Returns the unstored items.
+function fu_newStoreItems(item, avoidSlots, spawnLeftovers)
+	local slots = {}
+	for i=0,world.containerSize(entity.id()) do
+		if not avoidSlots[i] then
+			local slotItem = world.containerItemAt(entity.id(), i)
+			if not slotItem or (slotItem and slotItem.name == item.name) then
+				if slotItem then slotItem.slot = i end
+				table.insert(slots, slotItem or { slot = i })
+			end
+		end
+	end
+	table.sort(slots, function(a,b)
+		if a.name and not b.name then
+			return true
+		elseif not a.name and b.name then
+			return false
+		elseif a.name and b.name then
+			return a.count > b.count
+		end
+		return a.slot < b.slot
+	end)
+	for _,slot in ipairs(slots) do
+		item = world.containerPutItemsAt(entity.id(), item, slot.slot)
+	end
+	if spawnLeftovers and item and item.count > 0 then
+		world.spawnItem(item, entity.position())
+		return nil
+	end
+	return item
+end

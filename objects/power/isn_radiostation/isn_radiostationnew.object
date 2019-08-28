@@ -30,10 +30,16 @@
 
 	"inputNodes" : [ [1, 1] ],
 	
-	"powerInputNode" : 0,
-	"consumesEnergy" : true,
-	"maxEnergy" : 500,        // Ansible can store up to 10 seconds of unpowered activity
-	"energyConsume" : 40,
+	"power" : {
+		"inputNodes" : [0],
+		"consumes" : true,
+		"maxEnergy" : 500,
+		"consumeRate" : 40,
+		"animStates" : {
+			"active" : { "anim" : "on" },
+			"inactive" : { "anim" : "off" }
+		}
+	},
 	
 	"isn_baseFrequencies" : {
 		"isn_miningVendor" : "/objects/power/isn_radiostation/configs/isn_miningvendor.config"
