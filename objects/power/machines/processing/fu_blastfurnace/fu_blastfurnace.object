@@ -1,0 +1,54 @@
+{
+	"objectName" : "fu_blastfurnace",
+	"rarity" : "rare",
+	"colonyTags" : [ "science" ],
+	"description" : "A superior furnace for smelting mass quantities. ^cyan;Requires ^orange;500W ^cyan;power.^reset;",
+	"shortdescription" : "^cyan;Blast Furnace^white;",
+	"race" : "generic",
+	"category" : "^orange;Extraction Device^reset;",
+	"price" : 5000,
+	"objectType" : "container",
+	"printable" : false,
+	"learnBlueprintsOnPickup" : [ "isn_arcsmelter" ],
+	"scripts" : [ "/objects/power/scripts/machines/blastfurnace_common.lua" ],
+	"scriptDelta" : 5,
+	"openSounds" : [ "/sfx/objects/campfire_use.ogg" ],
+	"slotCount" : 15,
+	"uiConfig" : "/objects/power/machines/processing/fu_blastfurnace/fu_blastfurnace.config",
+	"frameCooldown" : 67,
+	"autoCloseCooldown" : 3600,
+
+	"animation" : "/objects/power/machines/processing/fu_blastfurnace/fu_blastfurnace.animation",
+
+	"animationParts" : {
+		"fu_blastfurnace" : "fu_blastfurnace.png",
+		"fu_blastfurnacefullbright" : "fu_blastfurnacefullbright.png"
+	},
+	"animationPosition" : [0, 0],
+
+	"inventoryIcon" : "fu_blastfurnace_inv.png",
+	"orientations" : [
+		{
+			"dualImage" : "fu_blastfurnace.png:<color>.<frame>",
+			"imagePosition" : [0, 0],
+			"spaceScan" : 0.1,
+			"anchors" : [ "bottom" ]
+		}
+	],
+
+	"inputNodes" : [ [2, 2] ],
+	"outputNodes" : [ [2, 1] ],
+
+	"power" : {
+		"inputNodes" : [0],
+		"maxEnergy" : 1500,
+		"relayDraw" : 550,
+		"consumes" : true,
+		"smeltingPower" : 500,
+		"smeltingTime" : 1,
+		"animStates" : {
+			"active" : { "furnaceState" : "active" },
+			"inactive" : { "furnaceState" : "idle" }
+		}
+	}
+}

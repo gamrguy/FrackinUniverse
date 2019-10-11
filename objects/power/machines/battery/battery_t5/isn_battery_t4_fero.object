@@ -1,0 +1,65 @@
+{
+	"objectName" : "isn_battery_t4_fero",
+	"rarity" : "legendary",
+	"colonyTags" : [ "science" ],
+	"category" : "wire",
+	"price" : 22500,
+	"description" : "A power storage unit. Stores up to 1.21GJ of power and dispenses 1.5KW when connected.",
+	"shortdescription" : "^cyan;Ultra Battery Unit^white;",
+	"race" : "generic",
+	"printable" : false,
+
+	"inventoryIcon" : "isn_battery_t4_fero_inv.png",
+	"orientations" : [
+		{
+			"dualImage" : "isn_battery_t4_fero_base.png",
+			"imagePosition" : [0, 0],
+			"spaceScan" : 0.1,
+			"collision" : "platform",
+			"anchors" : [ "bottom" ]
+		}
+	],
+
+	"breakDropOptions" : [],
+
+	"animation" : "isn_battery_t4_fero.animation",
+	"animationParts" : {
+		"meter" : "isn_battery_t4_fero_meter.png",
+		"status" : "isn_battery_t4_fero_status.png",
+		"base" : "isn_battery_t4_fero_base.png"
+	},
+	"animationPosition" : [0, 0],
+
+	"scripts" : [ "/objects/power/scripts/machines/battery_common.lua" ],
+	"scriptDelta" : 5,
+
+	"outputNodes" : [ [1, 3] ],
+	"inputNodes" : [ [0, 1], [2, 1] ],
+
+	"power" : {
+		"inputNodes" : [ 0, 1 ],
+		"outputNodes" : [ 0 ],
+		"maxEnergy" : 1210000,
+		"maxPushRate" : 1500,
+		"relayDraw" : 1500,
+		"produces" : true,
+		"consumes" : true,
+		"priority" : -1,
+		"animStates" : {
+			"powerMeter" : [
+				{ "level" : 0, "anims" : { "meter" : "d" } },
+				{ "level" : 0.01, "anims" : { "meter" : "0" } },
+				{ "level" : 0.1, "anims" : { "meter" : "1" } },
+				{ "level" : 0.2, "anims" : { "meter" : "2" } },
+				{ "level" : 0.3, "anims" : { "meter" : "3" } },
+				{ "level" : 0.4, "anims" : { "meter" : "4" } },
+				{ "level" : 0.5, "anims" : { "meter" : "5" } },
+				{ "level" : 0.6, "anims" : { "meter" : "6" } },
+				{ "level" : 0.7, "anims" : { "meter" : "7" } },
+				{ "level" : 0.8, "anims" : { "meter" : "8" } },
+				{ "level" : 0.9, "anims" : { "meter" : "9" } },
+				{ "level" : 1, "anims" : { "meter" : "10" } }
+			]
+		}
+	}
+}

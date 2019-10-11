@@ -1,0 +1,75 @@
+{
+	"objectName" : "braingenerator",
+	"rarity" : "Common",
+		"colonyTags" : [ "science" ],
+	"category" : "wire",
+	"objectType" : "container",
+	"price" : 3500,
+	"description" : "A product of mad science that appears to run from cannisters of still-living brains.",
+	"shortdescription" : "^cyan;Neuro-Psionic Generator^white;",
+	"race" : "generic",
+	"printable" : false,
+
+	"inventoryIcon" : "braingeneratoricon.png",
+	"orientations" : [
+		{
+			"dualImage" : "braingenerator_base.png",
+			"imagePosition" : [0, 0],
+			"spaceScan" : 0.1,
+			"anchors" : [ "bottom" ]
+		}
+	],
+
+	"animation" : "braingenerator.animation",
+	"animationParts" : {
+		"screen" : "braingenerator_screen.png",
+		"fans" : "braingenerator_fans.png",
+		"base" : "braingenerator_base.png"
+	},
+	"animationPosition" : [0, 0],
+	"soundEffect" : "braingenerator.ogg",
+	
+	"slotCount" : 1,
+	"uiConfig" : "/objects/power/interface/generator_brain.config",
+	"frameCooldown" : 67,
+	"autoCloseCooldown" : 3600,
+	
+	"scripts" : [ "/objects/power/scripts/machines/generator_common.lua"],
+	"scriptDelta" : 5,
+	
+	"inputNodes" : [ [2, 2],[0, 2] ],
+	"outputNodes" : [ [2, 1] ],
+	
+	"power" : {
+		"outputNodes" : [0],
+		"maxEnergy" : 60000,
+		"maxPushRate" : 600,
+		"produces" : true
+  },
+  
+	"acceptablefuel" : {
+		"inferiorbrain" : 10,
+		"brain" : 20,
+		"artificialbrain" : 60,
+		"brainpeerless" : 60,
+		"apexbrainjar" : 200,
+		"apexbrainjar2" : 360,
+		"apexbrainjar3" : 480,
+		"apexbrainjar4" : 520,
+		"psionicenergy" : 60,
+		"psionicenergy2" : 80,
+		"psionicenergy3" : 100,
+		"psionicenergy4" : 120
+  },
+  
+  "heat" : {
+    "maxPowerGen" : 60,
+    "maxLight" : [48, 222, 48],
+    "heatStates" : [
+      { "heat" : 0, "animator" : { "screen" : "off", "fans" : "off" }, "sound" : false },
+      { "heat" : 0.1, "animator" : { "screen" : "slow", "fans" : "slow" }, "sound" : false },
+      { "heat" : 0.5, "animator" : { "screen" : "med", "fans" : "fast" }, "sound" : true },
+      { "heat" : 0.9, "animator" : { "screen" : "fast" } }
+    ]
+  }
+}

@@ -1,0 +1,76 @@
+{
+	"objectName" : "centrifuge",
+	"colonyTags" : [ "science", "machines" ],
+	"printable" : false,
+	"rarity" : "rare",
+	"description" : "This advanced centrifuge efficiently separates immiscible liquids. ^cyan;Requires ^orange;20W ^cyan;power.^reset;",
+	"shortdescription" : "^cyan;Lab Centrifuge^reset;",
+	"subtitle" : "Extract items from resources",
+	"race" : "generic",
+	"category" : "^orange;Centrifuge^reset;",
+	"price" : 1200,
+	"objectType" : "container",
+	"learnBlueprintsOnPickup" : [ "centrifuge2" ],
+	"hydrophobic" : false,
+
+	"inventoryIcon" : "centrifugeicon.png",
+	"orientations" : [
+		{
+			"dualImage" : "centrifugefullbright.png:<color>.<frame>",
+
+			"imagePosition" : [0, 0],
+			"frames" : 1,
+			"animationCycle" : 0.4,
+
+			"spaceScan" : 0.1,
+			"anchors" : [ "bottom" ]
+		}
+	],
+	"animation" : "centrifuge.animation",
+	"animationParts" : {
+		"monitor" : "monitor.png",
+		"centrifugefullbright" : "centrifugefullbright.png"
+	},
+
+	"scripts" : [ "/objects/power/scripts/machines/centrifuge_common.lua" ],
+
+	"scriptDelta" : 5,
+	"recipeGroup" : "centrifuge",
+	"openSounds" : [ "/sfx/objects/locker_open.ogg" ],
+	"slotCount" : 19,
+	"uiConfig" : "/interface/bees/industrialcentrifuge/industrialcentrifuge2.config",
+	"frameCooldown" : 67,
+	"autoCloseCooldown" : 3600,
+
+	"craftDelay": 0.416666667,
+	"itemChances": {
+		"rarest": 0.01,
+		"rare": 0.05,
+		"uncommon": 0.11,
+		"normal": 0.25,
+		"common": 0.35
+	},
+
+	"inputSlot": 2,
+
+	"inputNodes" : [ [0, 1] ],
+	"outputNodes" : [ [0, 0] ],
+
+	"centrifugeType" : "liquid",
+	"power" : {
+		"inputNodes" : [0],
+		"consumes" : true,
+		"maxEnergy" : 600,
+		"centrifugePower" : 200,
+		"relayDraw" : 220,
+		"animStates" : {
+			"active" : { "centrifuge" : "working" },
+			"inactive" : { "centrifuge" : "idle" },
+			"off" : { "monitor" : "off" },
+			"deficit" : { "monitor" : "deficit" },
+			"unstable" : { "monitor" : "unstable" },
+			"stable" : { "monitor" : "stable" },
+			"idle" : { "centrifuge" : "idle", "monitor" : "off" }
+		}
+	}
+}

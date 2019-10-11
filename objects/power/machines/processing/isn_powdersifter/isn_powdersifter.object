@@ -1,0 +1,72 @@
+{
+  "objectName" : "isn_powdersifter",
+  "colonyTags" : [ "science", "machines" ],
+  "printable" : false,
+  "rarity" : "common",
+  "description" : "This advanced Sifter efficiently extracts materials from loose or powdery materials. ^cyan;Requires ^orange;100W ^cyan;power.^reset;",
+  "shortdescription" : "^cyan;Powder Sifter^white;",
+  "race" : "generic",
+  "category" : "^orange;Extraction Device^reset;",
+  "price" : 500,
+  "objectType" : "container",
+  "learnBlueprintsOnPickup" : [ "centrifuge" ],
+  "hydrophobic" : false,
+
+  "inventoryIcon" : "isn_powdersiftericon.png",
+  "orientations" : [
+    {
+      "dualImage" : "isn_powdersifter.png:<color>.<frame>",
+
+      "imagePosition" : [0, 0],
+      "frames" : 1,
+      "animationCycle" : 1,
+
+      "spaceScan" : 0.1,
+      "anchors" : [ "bottom" ]
+    }
+  ],
+  "animation" : "isn_powdersifter.animation",
+  "animationParts" : {
+    "centrifuge" : "isn_powdersifter.png",
+    "centrifugefullbright" : "isn_powdersifterfullbright.png"
+  },
+
+  "scripts" : [ "/objects/power/scripts/machines/centrifuge_common.lua" ],
+                
+  "scriptDelta" : 5,
+  "recipeGroup" : "centrifuge",
+  "openSounds" : [ "/sfx/objects/metalbox_open.ogg" ],
+  "closeSounds" : [ "/sfx/objects/metalbox_close.ogg" ],
+  "slotCount" : 26,
+  "uiConfig" : "/objects/power/machines/processing/isn_powdersifter/isn_powdersifter.config",
+  "frameCooldown" : 67,
+  "autoCloseCooldown" : 3600,
+
+  "craftDelay": 0.116666667,
+  "itemChances": {
+    "rarest": 0.008,
+    "rare": 0.03,
+    "uncommon": 0.07,
+    "normal": 0.15,
+    "common": 0.25
+  },
+
+  "inputSlot": 1,
+
+  "inputNodes" : [ [0, 1] ],
+  "outputNodes" : [ [0, 0] ],
+
+  "centrifugeType" : "powder",
+  "power" : {
+		"inputNodes" : [0],
+		"consumes" : true,
+		"maxEnergy" : 300,
+    "centrifugePower" : 100,
+    "relayDraw" : 110,
+		"animStates" : {
+			"active" : { "centrifuge" : "working" },
+			"inactive" : { "centrifuge" : "idle" },
+			"idle" : { "centrifuge" : "idle" }
+		}
+	}
+}
