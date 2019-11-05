@@ -13,7 +13,7 @@
 	"scripts": ["isn_resource_generator.lua"],
 	"scriptDelta": 10,
 
-	"animation": "/objects/power/fu_liquidcondenser/isn_resource_generator.animation",
+	"animation": "/objects/power/machines/resource/fu_liquidcondenser/isn_resource_generator.animation",
 
 	"animationParts": {
 		"basemachine": "fu_liquidcondenser.png"

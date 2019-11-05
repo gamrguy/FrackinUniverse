@@ -57,10 +57,11 @@
 		"inputNodes" : [0],
 		"consumes" : true,
 		"maxEnergy" : 1200,
-		"extractPower" : 400,
+    "extractPower" : 400,
 		"relayDraw" : 165,
 		"extractTime" : 1,
     "techLevel" : 3,
+    "inputSlots" : [ 0, 1, 2 ],
     "extractRecipes" : "/objects/power/recipes/extractor_psioniclab.config",
 		"animStates" : {
 			"active" : { "samplingarrayanim" : "working" },

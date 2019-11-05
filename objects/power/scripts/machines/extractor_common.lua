@@ -15,6 +15,12 @@ function power.postInit()
 		object.setLightColor({0, 0, 0, 0})
 	end
 
+	-- Stores the input slot values as keys. For later use.
+	self.inputSlots_inv = {}
+	for i in pairs(powerVars.inputSlots) do
+		self.inputSlots_inv[i] = true
+	end
+
 	recipes = root.assetJson(powerVars.extractRecipes or "/objects/power/recipes_extractor.config")
 
 	self.recipeCache = {}
@@ -48,8 +54,7 @@ function power.postUpdate(dt)
 			storage.craftTimer = storage.craftTimer - dt
 			if storage.craftTimer <= 0 then
 				for k,v in pairs(storage.craftRecipe.outputs) do
-					local avoid = { true, true }
-					avoid[0] = true
+					local avoid = self.inputSlots_inv
 					fu_newStoreItems({name = k, count = techlevelMap(v)}, avoid, true)
 				end
 				storage.craftRecipe = nil
@@ -112,7 +117,7 @@ end
 
 function getInputContents()
 	local contents = {}
-	for i = 0,2 do
+	for i in ipairs(powerVars.inputSlots) do
 		local item = world.containerItemAt(entity.id(),i)
 		if item then
 			table.insert(contents, item)

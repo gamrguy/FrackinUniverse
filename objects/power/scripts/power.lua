@@ -278,7 +278,7 @@ end
 function power.receiveEnergy(energy)
 	--sb.logInfo("Received "..energy.." energy")
 	-- Account for relay energy per second rates
-	local newEnergy = math.min(energy, powerVars.relayRemaining, powerVars.relayDraw * script.updateDt())
+	local newEnergy = math.min(energy, powerVars.relayRemaining, (powerVars.relayDraw or 9999) * script.updateDt())
 	power.setVar('relayRemaining', powerVars.relayRemaining - newEnergy)
 
 	newEnergy = power.getStoredEnergy() + newEnergy
